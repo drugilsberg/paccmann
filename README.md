@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/drugilsberg/paccmann.svg?branch=master)](https://travis-ci.org/drugilsberg/paccmann)
 # PaccMann
 
 `paccmann` is a package for drug sensitivity prediction and is the core component of the repo.
