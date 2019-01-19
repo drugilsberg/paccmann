@@ -8,7 +8,7 @@ from .layers import (
 
 
 # Specifies types of RNN cells used for the SMILES encoder.
-# Uses CUDA implementation (GPU) if available
+# Uses CUDA implementation (GPU) if available.
 RNN_CELL_FACTORY = {
     'lstm': (
         tf.contrib.cudnn_rnn.CudnnCompatibleLSTMCell
