@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.org/drugilsberg/paccmann.svg?branch=master)](https://travis-ci.org/drugilsberg/paccmann)
 # PaccMann
 
-[paccmann](https://github.com/drugilsberg/paccmann/tree/master/paccmann) is a package for drug sensitivity prediction and is the core component of the repo.
+`paccmann` is a package for drug sensitivity prediction and is the core component of the repo.
 
 The package provides a toolbox of learning models for IC50 prediction using drug's chemical properties and tissue-specific cell lines gene expression.
 
