@@ -2,7 +2,7 @@
 
 `paccmann` is a package for drug sensitivity prediction and is the core component of the repo.
 
-The package provide a toolbox of learning models for IC50 prediction using drug's chemical properties and tissue-specific cell lines gene expression.
+The package provides a toolbox of learning models for IC50 prediction using drug's chemical properties and tissue-specific cell lines gene expression.
 
 ## Installation
 
