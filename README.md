@@ -42,7 +42,7 @@ In case you don't have a working MPI installation see [here](https://github.com/
 
 ## Models training
 
-Models can be trained using the script `bin/training_paccmann` that is installed together with the module. Check the `examples` for a quick start.
+Models can be trained using the script `bin/training_paccmann` that is installed together with the module. Check the [examples](https://github.com/drugilsberg/paccmann/tree/master/examples) for a quick start.
 For more details see the help of the training command by typing `training_paccmann -h`:
 ```
 usage: training_paccmann [-h] [-save_checkpoints_steps 300]
