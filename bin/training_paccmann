@@ -1,0 +1,280 @@
+#!/usr/bin/env python3
+# coding: utf-8
+"""Script for `paccmann` training."""
+import plac
+import os
+import json
+import logging
+import sys
+import tensorflow as tf
+import numpy as np
+import horovod.tensorflow as hvd
+from datetime import datetime
+from paccmann.models import paccmann_model_fn, MODEL_SPECIFICATION_FACTORY
+from paccmann.datasets import (
+    DATASETS_METADATA, validate_feature_names
+)
+from paccmann.learning import (
+    train_input_fn, eval_input_fn, serving_input_with_params_fn
+)
+from paccmann.gpu_utils import get_available_gpus
+
+
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+logger = logging.getLogger('training_paccmann')
+
+
+@plac.annotations(
+    train_filepath=plac.Annotation(
+        'Path to train data.',
+        type=str
+    ),
+    eval_filepath=plac.Annotation(
+        'Path to eval data.',
+        type=str
+    ),
+    model_path=plac.Annotation(
+        'Path where the model is stored.',
+        type=str
+    ),
+    model_specification_fn_name=plac.Annotation(
+        'Model specification function. Pick one of the following: {}.'.format(
+            list(MODEL_SPECIFICATION_FACTORY.keys())
+        ),
+        type=str
+    ),
+    params_filepath=plac.Annotation(
+        'Path to model params. Dictionary with parameters defining the model.',
+        type=str
+    ),
+    feature_names=plac.Annotation(
+        'Comma separated feature names. Select from the following: {}.'.format(
+            list(DATASETS_METADATA.keys())
+        ),
+        type=str
+    ),
+    model_suffix=(
+        'Suffix for the trained moedel.',
+        'option', 'model_suffix', str
+    ),
+    save_checkpoints_steps=(
+        'Steps before saving a checkpoint.',
+        'option', 'save_checkpoints_steps', int
+    ),
+    eval_throttle_secs=(
+        'Throttle seconds between evaluations.',
+        'option', 'eval_throttle_secs', int
+    ),
+    train_steps=(
+        'Number of training steps.',
+        'option', 'train_steps', int
+    ),
+    batch_size=(
+        'Batch size.',
+        'option', 'batch_size', int
+    ),
+    learning_rate=(
+        'Learning rate.',
+        'option', 'learning_rate', float
+    ),
+    dropout=(
+        'Dropout to be applied to set and dense layers.',
+        'option', 'dropout', float
+    ),
+    buffer_size=(
+        'Buffer size for data shuffling.',
+        'option', 'buffer_size', int
+    ),
+    number_of_threads=(
+        'Number of threads to be used in data processing.',
+        'option', 'number_of_threads', int
+    ),
+    prefetch_buffer_size=(
+        'Prefetch buffer size to allow pipelining.',
+        'option', 'prefetch_buffer_size', int
+    )
+)
+def main(
+    train_filepath, eval_filepath,
+    model_path, model_specification_fn_name,
+    params_filepath, feature_names,
+    save_checkpoints_steps=300,
+    eval_throttle_secs=60,
+    model_suffix='',
+    train_steps=10000,
+    batch_size=64,
+    learning_rate=1e-3,
+    dropout=0.5,
+    buffer_size=20000,
+    number_of_threads=1,
+    prefetch_buffer_size=6
+):
+    """Run training of a `paccmann` model."""
+    try:
+        params = {}
+        with open(params_filepath) as fp:
+            params.update(json.load(fp))
+
+        feature_names = list(set(feature_names.split(',')))
+        if params.get('use_cnv_data', False):
+            params.update({key: key for key in CNV_FEATURES})
+            feature_names.extend(CNV_FEATURES)
+        feature_names = sorted(feature_names)
+
+        # Check if the model_specification_fn_name requested is available.
+        if model_specification_fn_name not in MODEL_SPECIFICATION_FACTORY:
+            message = (
+                '{} not present. Pick one of the following: {}'.format(
+                    model_specification_fn_name,
+                    list(MODEL_SPECIFICATION_FACTORY.keys())
+                )
+            )
+            raise RuntimeError(message)
+        # Check feature passed.
+        if len(feature_names) != len(validate_feature_names(feature_names)):
+            message = (
+                'feature_names={} provided not completely supported. Select '
+                'from the following: {}.'.format(
+                    feature_names,
+                    list(DATASETS_METADATA.keys())
+                )
+            )
+            raise RuntimeError(message)
+        prefix = 'paccmann_model_{}_{}'.format(
+            '-'.join(feature_names),
+            model_specification_fn_name
+        )
+        if len(model_suffix) < 1:
+            model_suffix = '{:%Y-%m-%d_%H:%M:%S}'.format(
+                datetime.now()
+            )
+        model_dir = os.path.join(
+            model_path,
+            '{}_{}'.format(prefix, model_suffix)
+        )
+        # NOTE: optionally enable multi-GPU.
+        available_gpus = get_available_gpus()
+        multi_gpu = len(available_gpus) > 1
+        hooks = None
+        if multi_gpu:
+            hvd.init()
+            config = tf.ConfigProto()
+            config.gpu_options.allow_growth = True
+            config.gpu_options.visible_device_list = str(hvd.local_rank())
+            if hvd.rank() != 0:
+                model_dir = None
+            broadcast_hook = hvd.BroadcastGlobalVariablesHook(0)
+            train_steps = train_steps // hvd.size()
+            hooks = [broadcast_hook]
+        # Parameters.
+        params.update({
+            'feature_names': feature_names,
+            'batch_size': batch_size,
+            'train_filepath': train_filepath,
+            'eval_filepath': eval_filepath,
+            'learning_rate': learning_rate,
+            'dropout': dropout,
+            'buffer_size': buffer_size,
+            'number_of_threads': (
+                number_of_threads if number_of_threads > 1 else None
+            ),
+            'prefetch_buffer_size': prefetch_buffer_size
+        })
+
+        # Optionally update scaling parameters.
+        ic50_normalization_params_filepath = os.path.join(
+            train_filepath, 'ic50_normalization_params.json'
+        )
+        if os.path.exists(ic50_normalization_params_filepath):
+            with open(ic50_normalization_params_filepath) as fp:
+                params.update(json.load(fp))
+
+        logger.info('Model params:\n{}'.format(params))
+        # Check if the feature requested are supported by the model.
+        string_parameter_values_set = set([
+            value
+            for value in params.values()
+            if isinstance(value, str)
+        ])
+        if (
+            len(set(feature_names).intersection(
+                string_parameter_values_set)
+                ) != len(feature_names)
+        ):
+            message = (
+                'feature_names provided not found in the params_filepath '
+                'provided. '
+                'Please make sure the feature_names are compatible with the '
+                'model_specification_fn_name provided:\nparams_filepath={}\n'
+                'feature_names={}\nmodel_specification_fn_name={}\n'
+                'params={}'.format(
+                    params_filepath, feature_names,
+                    model_specification_fn_name, params.pop('feature_names')
+                )
+            )
+            raise RuntimeError(message)
+        # Define exporter.
+        exporter = tf.estimator.LatestExporter(
+            '{}_exporter'.format(model_dir),
+            lambda: serving_input_with_params_fn(params),
+            exports_to_keep=None
+        )
+        # Define estimator.
+        estimator = tf.estimator.Estimator(
+            model_fn=(
+                lambda features, labels, mode, params: paccmann_model_fn(
+                    features, labels, mode, params,
+                    model_specification_fn=(
+                        MODEL_SPECIFICATION_FACTORY[model_specification_fn_name]
+                    )
+                )
+            ),
+            model_dir=model_dir,
+            params=params
+        )
+        if model_dir != None:
+            # Check the training on `tensorboard`.
+            logger.info(
+                'Follow training evolution with: '
+                'tensorboard --logdir {}'.format(
+                    estimator.model_dir
+                )
+            )
+            tf.estimator.RunConfig.save_checkpoints_steps = (
+                save_checkpoints_steps
+            )
+            tf.estimator.RunConfig.save_checkpoints_secs = None
+            tf.estimator.RunConfig.keep_checkpoint_max = 0
+
+        # Define training and eval specifications.
+        train_spec = tf.estimator.TrainSpec(
+            input_fn=train_input_fn,
+            max_steps=train_steps,
+            hooks=hooks
+        )
+        eval_spec = tf.estimator.EvalSpec(
+            input_fn=eval_input_fn,
+            throttle_secs=eval_throttle_secs,
+            steps=None,
+            exporters=exporter
+        )
+        # Trainable parameters
+        number_of_parameters = np.sum([
+            np.prod(v.shape)
+            for v in tf.trainable_variables()
+        ])
+        params.update({'trainable_parameters': number_of_parameters})
+
+        # Dump params.
+        os.makedirs(model_dir, exist_ok=True)
+        with open(os.path.join(model_dir, 'model_params.json'), 'w') as fp:
+            json.dump(params, fp)
+
+        # Train and evaluate.
+        tf.estimator.train_and_evaluate(estimator, train_spec, eval_spec)
+    except Exception:
+        logger.exception('Exception occurred in running training_paccmann.py')
+
+
+if __name__ == '__main__':
+    plac.call(main)

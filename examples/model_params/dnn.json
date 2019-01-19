@@ -1,0 +1,16 @@
+{  
+    "batch_size": 2048,
+    "learning_rate": 0.0005,
+    "dropout": 0.5,
+    "batch_norm": true,
+    "loss_function": "mse",
+    "stacked_dense_hidden_sizes": [512, 256, 128, 64, 64, 16],
+    "activation": "sigmoid",
+    "selected_genes_name": "selected_genes_20",
+    "drug_features_name": "fingerprints_512",
+    "buffer_size": 1000000,
+    "prefetch_buffer_size": 512,
+    "number_of_threads": 10,
+    "drop_remainder": true,
+    "eval_batch_size": 32
+}

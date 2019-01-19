@@ -1,0 +1,20 @@
+{
+    "batch_size": 2048,
+    "learning_rate": 0.001,
+    "dropout": 0.5,
+    "batch_norm": true,
+    "stacked_dense_hidden_sizes": [256, 128, 64, 64, 32],
+    "acitvation_function": "sigmoid",
+    "selected_genes_name": "selected_genes_20",
+    "tokens_name": "smiles_atom_tokens",
+    "smiles_vocabulary_size": 28,
+    "smiles_embedding_size": 16,
+    "smiles_attention_size": 256,
+    "feature_names": ["selected_genes_20", "smiles_atom_tokens"],
+    "buffer_size": 1000000,
+    "prefetch_buffer_size": 512,
+    "number_of_threads": 10,
+    "drop_remainder": true,
+    "eval_batch_size": 32,
+    "serving_batch_size": 1
+}

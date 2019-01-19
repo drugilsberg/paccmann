@@ -1,0 +1,23 @@
+dist: trusty
+
+sudo: required
+
+before_install:
+  # adding MPI dependency for distributed training packages
+  - sudo apt-get install libcr-dev mpich2 mpich2-doc
+  # we install python manually because we need requirements in order 
+  # (horovod has to be installed after tensorflow) and
+  # we can't trigger automatic requirements installation.
+  - sudo add-apt-repository ppa:jonathonf/python-3.6 -y
+  - sudo apt-get update
+  - sudo apt-get install --allow-unauthenticated python3.6
+  - sudo apt-get install curl
+  - curl -s https://bootstrap.pypa.io/get-pip.py | sudo python3.6
+  - sudo python3.6 -m pip install pip
+
+before_script:
+  - sudo pip3.6 install .
+
+script:
+  - python3.6 -c "import paccmann"
+  - training_paccmann -h
