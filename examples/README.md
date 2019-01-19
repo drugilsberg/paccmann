@@ -25,4 +25,4 @@ After installation, to run a training on the toy examples use `training_paccmann
 training_paccmann data/train data/test /path/to/store/model/ mca model_params/mca.json smiles_atom_tokens,selected_genes_20
 ```
 
-For details on the TFRecords schema check `paccmann/datasets.py`.
+For details on the TFRecords schema check [paccmann/datasets.py](https://github.com/drugilsberg/paccmann/blob/master/paccmann/datasets.py).
