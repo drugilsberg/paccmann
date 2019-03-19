@@ -45,7 +45,8 @@ In case you don't have a working MPI installation see [here](https://github.com/
 
 Models can be trained using the script `bin/training_paccmann` that is installed together with the module. Check the [examples](https://github.com/drugilsberg/paccmann/tree/master/examples) for a quick start.
 For more details see the help of the training command by typing `training_paccmann -h`:
-```
+
+```console
 usage: training_paccmann [-h] [-save_checkpoints_steps 300]
                          [-eval_throttle_secs 60] [-model_suffix]
                          [-train_steps 10000] [-batch_size 64]
