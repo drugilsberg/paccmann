@@ -16,7 +16,7 @@ before_install:
   - sudo python3.6 -m pip install pip
 
 before_script:
-  - sudo pip3.6 install .
+  - sudo -H pip3.6 install .
 
 script:
   - python3.6 -c "import paccmann"
