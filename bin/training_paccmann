@@ -8,7 +8,6 @@ import logging
 import sys
 import tensorflow as tf
 import numpy as np
-import horovod.tensorflow as hvd
 from datetime import datetime
 from paccmann.models import paccmann_model_fn, MODEL_SPECIFICATION_FACTORY
 from paccmann.datasets import (
@@ -17,8 +16,6 @@ from paccmann.datasets import (
 from paccmann.learning import (
     train_input_fn, eval_input_fn, serving_input_with_params_fn
 )
-from paccmann.gpu_utils import get_available_gpus
-
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 logger = logging.getLogger('training_paccmann')
@@ -152,20 +149,6 @@ def main(
             model_path,
             '{}_{}'.format(prefix, model_suffix)
         )
-        # NOTE: optionally enable multi-GPU.
-        available_gpus = get_available_gpus()
-        multi_gpu = len(available_gpus) > 1
-        hooks = None
-        if multi_gpu:
-            hvd.init()
-            config = tf.ConfigProto()
-            config.gpu_options.allow_growth = True
-            config.gpu_options.visible_device_list = str(hvd.local_rank())
-            if hvd.rank() != 0:
-                model_dir = None
-            broadcast_hook = hvd.BroadcastGlobalVariablesHook(0)
-            train_steps = train_steps // hvd.size()
-            hooks = [broadcast_hook]
         # Parameters.
         params.update({
             'feature_names': feature_names,
@@ -249,8 +232,7 @@ def main(
         # Define training and eval specifications.
         train_spec = tf.estimator.TrainSpec(
             input_fn=train_input_fn,
-            max_steps=train_steps,
-            hooks=hooks
+            max_steps=train_steps
         )
         eval_spec = tf.estimator.EvalSpec(
             input_fn=eval_input_fn,

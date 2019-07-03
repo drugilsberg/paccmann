@@ -1,8 +1,6 @@
 """Core for paccmann models."""
 import tensorflow as tf
-import horovod.tensorflow as hvd
 from ..hyperparams import LOSS_FN_FACTORY, OPTIMIZER_FACTORY
-from ..gpu_utils import get_available_gpus
 from ..metrics import pearson
 
 
@@ -42,10 +40,6 @@ def paccmann_model_fn(
     Returns:
         Estimator specifications (<tf.estimator.EstimatorSpec>).
     """
-    # NOTE: optionally enable multi-GPU.
-    available_gpus = get_available_gpus()
-    multi_gpu = len(available_gpus) > 1
-
     # NOTE: run model specification function.
     predictions, prediction_dict = model_specification_fn(
         features, labels, mode, params
@@ -93,15 +87,9 @@ def paccmann_model_fn(
             decay_steps=params.get('decay_steps', 3000),
             decay_rate=params.get('decay_rate', 0.96)
         )
-        if multi_gpu:
-            optimizer = optimizer_class(
-                learning_rate=learning_rate * hvd.size()
-            )
-            optimizer = hvd.DistributedOptimizer(optimizer)
-        else:
-            optimizer = optimizer_class(
-                learning_rate=learning_rate
-            )
+        optimizer = optimizer_class(
+            learning_rate=learning_rate
+        )
         update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
         with tf.control_dependencies(update_ops):
             train_op = optimizer.minimize(loss, tf.train.get_global_step())
