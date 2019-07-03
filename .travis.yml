@@ -4,8 +4,8 @@ python:
   - "3.6"
 
 before_script:
-  - pip3.6 install .
+  - pip install .
 
 script:
-  - python3.6 -c "import paccmann"
+  - python -c "import paccmann"
   - training_paccmann -h
