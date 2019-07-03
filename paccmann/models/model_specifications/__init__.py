@@ -1,4 +1,4 @@
-"""Initialization for `paccmann.model.model_specifications`ß submodule."""
+"""Initialization for `paccmann.model.model_specifications` submodule."""
 from .dnn import dnn_fn
 from .rnn import rnn_fn
 from .scnn import scnn_fn
