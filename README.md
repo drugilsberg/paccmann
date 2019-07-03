@@ -37,10 +37,6 @@ Or as a normal package:
 pip3 install .
 ```
 
-*NOTE*: For multi-GPU training we use `horovod`. Its installation requires a working MPI installation.
-If you don't plan to use `paccmann` for distributed training on GPU you might remove `horovod` from `requirements.txt` before installing the package (you then will need to comment out the `horovod` imports in `paccmann/bin/training_paccmann` and `paccmann/paccmann/models/core.py`. 
-In case you don't have a working MPI installation see [here](https://github.com/uber/horovod) for details on setting up `horovod`.
-
 ## Models training
 
 Models can be trained using the script `bin/training_paccmann` that is installed together with the module. Check the [examples](https://github.com/drugilsberg/paccmann/tree/master/examples) for a quick start.
