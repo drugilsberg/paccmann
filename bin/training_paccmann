@@ -16,8 +16,6 @@ from paccmann.datasets import (
 from paccmann.learning import (
     train_input_fn, eval_input_fn, serving_input_with_params_fn
 )
-from paccmann.gpu_utils import get_available_gpus
-
 
 logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 logger = logging.getLogger('training_paccmann')
@@ -234,8 +232,7 @@ def main(
         # Define training and eval specifications.
         train_spec = tf.estimator.TrainSpec(
             input_fn=train_input_fn,
-            max_steps=train_steps,
-            hooks=hooks
+            max_steps=train_steps
         )
         eval_spec = tf.estimator.EvalSpec(
             input_fn=eval_input_fn,
