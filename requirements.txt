@@ -3,3 +3,5 @@ tensorflow == 1.14.0
 tensor2tensor >= 1.10.0
 plac >= 0.9.6
 setuptools >= 41.0.0
+pandas >= 0.24.1
+sklearn 

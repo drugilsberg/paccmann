@@ -11,7 +11,7 @@ import numpy as np
 from datetime import datetime
 from paccmann.models import paccmann_model_fn, MODEL_SPECIFICATION_FACTORY
 from paccmann.datasets import (
-    DATASETS_METADATA, validate_feature_names
+    DATASETS_METADATA, validate_feature_names, CNV_FEATURES
 )
 from paccmann.learning import (
     train_input_fn, eval_input_fn, serving_input_with_params_fn
@@ -113,6 +113,9 @@ def main(
             params.update(json.load(fp))
 
         feature_names = list(set(feature_names.split(',')))
+        if params.get('use_cnv_data', False):
+            params.update({key: key for key in CNV_FEATURES})
+            feature_names.extend(CNV_FEATURES)
         feature_names = sorted(feature_names)
 
         # Check if the model_specification_fn_name requested is available.

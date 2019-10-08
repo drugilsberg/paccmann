@@ -15,7 +15,7 @@ if os.path.exists('requirements.txt'):
     for line in open('requirements.txt'):
         PYPI_REQUIREMENTS.append(line.strip())
 
-scripts = ['bin/training_paccmann']
+scripts = ['bin/training_paccmann', 'bin/training_baseline']
 
 setup(
     name='paccmann',

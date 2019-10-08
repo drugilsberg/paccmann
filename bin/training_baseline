@@ -1,0 +1,168 @@
+#!/usr/bin/env python3
+# coding: utf-8
+"""
+Train regression models (baseline comparison).
+"""
+# Imports
+import plac
+import os
+import glob
+import logging
+import sys
+import pandas as pd
+import numpy as np
+
+# Import helper functions
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import Pipeline
+from sklearn.metrics import mean_squared_error
+from time import time
+from datetime import datetime
+from paccmann.metrics import pearson_sklearn
+
+# Import regression models
+from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import AdaBoostRegressor
+from sklearn.svm import SVR
+
+# setup logging (probably not needed)
+logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+logger = logging.getLogger('Regression logger')
+
+
+@plac.annotations(
+    train_filepath=plac.Annotation(
+        'Path to train data.',
+        type=str
+    ),
+    eval_filepath=plac.Annotation(
+        'Path to eval data.',
+        type=str
+    ),
+    model_path=plac.Annotation(
+        'Path where the model is stored.',
+        type=str
+    )
+)
+def main(train_filepath, eval_filepath, model_path):
+
+    try:
+
+        # Prepare a set of off-the-shelf regressors
+        pipelines = []
+        pipelines.append((
+            'Scaled_GradientBoost',
+            Pipeline([
+                ('Scaler', StandardScaler()),
+                ('GradientBoost', GradientBoostingRegressor())
+            ])
+        ))
+        pipelines.append((
+            'Scaled_RandomForest',
+            Pipeline([
+                ('Scaler', StandardScaler()),
+                ('RF', RandomForestRegressor(n_estimators=500, n_jobs=12))
+            ])
+        ))
+        pipelines.append((
+            'Scaled_AdaBoost',
+            Pipeline([
+                ('Scaler', StandardScaler()),
+                ('AdaBoost', AdaBoostRegressor())
+            ])
+        ))
+        pipelines.append((
+            'Scaled_SVR',
+            Pipeline([(
+                'Scaler', StandardScaler()),
+                ('SVR', SVR(epsilon=0.2, gamma='scale'))
+            ])
+        ))
+        pipelines.append((
+            'Scaled_LinearRegression',
+            Pipeline([(
+                'Scaler', StandardScaler()),
+                ('SVR', LinearRegression())
+            ])
+        ))
+
+        results = []
+        models = []
+
+        def data_reader(path, feature):
+            """
+            Loop over list of .csv files and return np array with data.
+            """
+            data_dfs = [
+                pd.read_csv(p, header=None)
+                for p in glob.glob(os.path.join(path, f"*{feature}*.csv"))
+            ]
+            return np.squeeze(np.array(pd.concat(data_dfs, sort=False)))
+
+        logger.info('Starting to load data...')
+        # Data reading
+        train_Y = data_reader(train_filepath, 'ic50')
+        test_Y = data_reader(eval_filepath, 'ic50')
+        
+        train_X = np.concatenate(
+            [
+                data_reader(train_filepath, 'selected_genes_20'),
+                data_reader(train_filepath, 'fingerprints_512')
+            ], axis=1
+        )
+        test_X = np.concatenate(
+            [
+                data_reader(eval_filepath, 'selected_genes_20'),
+                data_reader(eval_filepath, 'fingerprints_512')
+            ], axis=1
+        )
+
+        logger.info('Now starting to train...')
+        
+        for name, model in pipelines:
+
+            logger.info("="*5+name+"="*5)
+            t = time()
+            model.fit(train_X, train_Y)    
+            
+            test_Y_hat = model.predict(test_X)
+            mse = np.round(mean_squared_error(test_Y_hat, test_Y), 5)
+            pearson = np.round(pearson_sklearn(test_Y_hat, test_Y), 5)
+            elapsed = np.round(time() - t, 5)
+            logger.info(
+                f" MSE = {mse}, RMSE = {np.round(np.sqrt(mse),5)} with "
+                f"Pearson = {pearson} in time:{elapsed}"
+            )
+            
+            models.append(model)
+            results.append({
+                "MSE": mse,
+                "Pearson": pearson,
+                "Time": elapsed,
+                "Name": name
+            })
+
+        pd.DataFrame(results).to_csv(
+            os.path.join(
+                model_path, 
+                'baseline_{:%Y-%m-%d_%H_%M}'.format(datetime.now())
+            )
+        )
+
+    except Exception:
+        logger.exception('Exception occurred in running training_paccmann.py')
+
+
+if __name__ == '__main__':
+    plac.call(main)
+
+
+
+#%%
+from datetime import datetime
+s = "{:%Y-%m-%d_%H_%M}".format(datetime.now())
+s
+
+#%%
