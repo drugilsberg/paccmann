@@ -19,7 +19,7 @@ In `data/train` and `data/test` we include a small collection of TFRecords compa
 
 ## Run a example
 
-After installation, to run a training on the toy examples use `training_paccmann` passing the data, the desired encoder and the corresponding model parameters:
+After installation, to run a training on the toy examples use `training_paccmann` passing the data, the desired encoder and the corresponding model parameters. Assuming you are inside this folder ("examples"), run:
 
 ```sh
 training_paccmann data/train data/test /path/to/store/model/ mca model_params/mca.json smiles_atom_tokens,selected_genes_20
