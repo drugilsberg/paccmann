@@ -147,7 +147,7 @@ def main(train_filepath, eval_filepath, model_path):
         pd.DataFrame(results).to_csv(
             os.path.join(
                 model_path, 
-                'baseline_{:%Y-%m-%d_%H_%M}'.format(datetime.now())
+                'baseline_{:%Y-%m-%d_%H_%M}.csv'.format(datetime.now())
             )
         )
 

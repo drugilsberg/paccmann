@@ -26,3 +26,14 @@ training_paccmann data/train data/test /path/to/store/model/ mca model_params/mc
 ```
 
 For details on the TFRecords schema check [paccmann/datasets.py](https://github.com/drugilsberg/paccmann/blob/master/paccmann/datasets.py).
+
+## Run example (baseline models)
+
+You can compare the performance of the different NN architectures with off-the-shelf regression models (SVR, RF, AdaBoost etc.) by running:
+
+```sh
+training_baseline data/train data/test /path/to/store/model/
+```
+
+Please note that performance scores are not representative due to the size of the dataset.
+
