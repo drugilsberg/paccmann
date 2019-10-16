@@ -5,6 +5,24 @@
 
 The package provides a toolbox of learning models for IC50 prediction using drug's chemical properties and tissue-specific cell lines gene expression.
 
+### Citation
+Please cite us as follows:
+```
+@article{oskooei2018paccmann,
+  title={PaccMann: Prediction of anticancer compound sensitivity with multi-modal attention-based neural networks},
+  author={Oskooei, Ali and Born, Jannis and Manica, Matteo and Subramanian, Vigneshwari and S{\'a}ez-Rodr{\'\i}guez, Julio and Mart{\'\i}nez, Mar{\'\i}a Rodr{\'\i}guez},
+  journal={arXiv preprint arXiv:1811.06802},
+  year={2018}
+}
+
+@article{manica2019towards,
+  title={Towards Explainable Anticancer Compound Sensitivity Prediction via Multimodal Attention-based Convolutional Encoders},
+  author={Manica, Matteo and Oskooei, Ali and Born, Jannis and Subramanian, Vigneshwari and S{\'a}ez-Rodr{\'\i}guez, Julio and Mart{\'\i}nez, Mar{\'\i}a Rodr{\'\i}guez},
+  journal={arXiv preprint arXiv:1904.11223},
+  year={2019}
+}
+```
+
 ## Installation
 
 ### Setup of the virtual environment
