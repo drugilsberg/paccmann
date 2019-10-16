@@ -157,12 +157,3 @@ def main(train_filepath, eval_filepath, model_path):
 
 if __name__ == '__main__':
     plac.call(main)
-
-
-
-#%%
-from datetime import datetime
-s = "{:%Y-%m-%d_%H_%M}".format(datetime.now())
-s
-
-#%%
