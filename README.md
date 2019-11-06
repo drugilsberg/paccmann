@@ -1,4 +1,8 @@
 [![Build Status](https://travis-ci.org/drugilsberg/paccmann.svg?branch=master)](https://travis-ci.org/drugilsberg/paccmann)
+
+# DISCLAIMER:
+This code gives the `tensorflow` implementation of PaccMann as of our paper in [Molecular Pharmaceutics](https://pubs.acs.org/doi/10.1021/acs.molpharmaceut.9b00520). For new developments and `pytorch` implementations look at our [PaccMann organization](https://github.com/PaccMann/).
+
 # PaccMann
 
 `paccmann` is a package for drug sensitivity prediction and is the core component of the repo.
@@ -7,7 +11,7 @@ The package provides a toolbox of learning models for IC50 prediction using drug
 
 ### Citation
 Please cite us as follows:
-```
+``` bib
 @article{oskooei2018paccmann,
   title={PaccMann: Prediction of anticancer compound sensitivity with multi-modal attention-based neural networks},
   author={Oskooei, Ali and Born, Jannis and Manica, Matteo and Subramanian, Vigneshwari and S{\'a}ez-Rodr{\'\i}guez, Julio and Mart{\'\i}nez, Mar{\'\i}a Rodr{\'\i}guez},
@@ -15,11 +19,13 @@ Please cite us as follows:
   year={2018}
 }
 
-@article{manica2019towards,
-  title={Towards Explainable Anticancer Compound Sensitivity Prediction via Multimodal Attention-based Convolutional Encoders},
-  author={Manica, Matteo and Oskooei, Ali and Born, Jannis and Subramanian, Vigneshwari and S{\'a}ez-Rodr{\'\i}guez, Julio and Mart{\'\i}nez, Mar{\'\i}a Rodr{\'\i}guez},
-  journal={arXiv preprint arXiv:1904.11223},
-  year={2019}
+@article{manica2019paccmann,
+author = {Manica, Matteo and Oskooei, Ali and Born, Jannis and Subramanian, Vigneshwari and Saez-Rodriguez, Julio and Rodriguez Martinez, Maria},
+title = {Toward Explainable Anticancer Compound Sensitivity Prediction via Multimodal Attention-Based Convolutional Encoders},
+journal = {Molecular Pharmaceutics},
+year = {2019},
+doi = {10.1021/acs.molpharmaceut.9b00520},
+note = {PMID: 31618586},
 }
 ```
 
