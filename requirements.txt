@@ -1,5 +1,5 @@
 numpy >= 1.14.3
-tensorflow == 1.14.0
+tensorflow == 1.15.0
 tensor2tensor >= 1.10.0
 plac >= 0.9.6
 setuptools >= 41.0.0
