@@ -1,7 +1,7 @@
-numpy >= 1.14.3
-tensorflow == 1.15.2
-tensor2tensor >= 1.10.0
-plac >= 0.9.6
-setuptools >= 41.0.0
-pandas >= 0.24.1
+numpy>=1.14.3
+tensor2tensor>=1.10.0
+tensorflow>=1.15.2,<2.0.0
+plac>=0.9.6
+setuptools>=41.0.0
+pandas>=0.24.1
 scikit-learn==0.22.1
