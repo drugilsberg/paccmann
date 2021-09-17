@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/drugilsberg/paccmann.svg?branch=master)](https://travis-ci.org/drugilsberg/paccmann)
+[![Build Status](https://github.com/drugilsberg/paccmann/actions/workflows/build.yml/badge.svg)](https://github.com/drugilsberg/paccmann/actions/workflows/build.yml)
 
 # DISCLAIMER:
 This code gives the `tensorflow` implementation of PaccMann as of our paper in [Molecular Pharmaceutics](https://pubs.acs.org/doi/10.1021/acs.molpharmaceut.9b00520). For new developments and `pytorch` implementations look at our [PaccMann organization](https://github.com/PaccMann/).
