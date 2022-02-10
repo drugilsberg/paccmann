@@ -12,20 +12,17 @@ The package provides a toolbox of learning models for IC50 prediction using drug
 ### Citation
 Please cite us as follows:
 ``` bib
-@article{oskooei2018paccmann,
-  title={PaccMann: Prediction of anticancer compound sensitivity with multi-modal attention-based neural networks},
-  author={Oskooei, Ali and Born, Jannis and Manica, Matteo and Subramanian, Vigneshwari and S{\'a}ez-Rodr{\'\i}guez, Julio and Mart{\'\i}nez, Mar{\'\i}a Rodr{\'\i}guez},
-  journal={arXiv preprint arXiv:1811.06802},
-  year={2018}
-}
-
 @article{manica2019paccmann,
-author = {Manica, Matteo and Oskooei, Ali and Born, Jannis and Subramanian, Vigneshwari and Saez-Rodriguez, Julio and Rodriguez Martinez, Maria},
-title = {Toward Explainable Anticancer Compound Sensitivity Prediction via Multimodal Attention-Based Convolutional Encoders},
-journal = {Molecular Pharmaceutics},
-year = {2019},
-doi = {10.1021/acs.molpharmaceut.9b00520},
-note = {PMID: 31618586},
+  title={Toward explainable anticancer compound sensitivity prediction via multimodal attention-based convolutional encoders},
+  author={Manica, Matteo and Oskooei, Ali and Born, Jannis and Subramanian, Vigneshwari and S{\'a}ez-Rodr{\'\i}guez, Julio and Mart{\'\i}nez, Mar{\'\i}a Rodr{\'\i}guez},
+  journal={Molecular pharmaceutics},
+  volume={16},
+  number={12},
+  pages={4797--4806},
+  year={2019},
+  publisher={ACS Publications},
+  doi = {10.1021/acs.molpharmaceut.9b00520},
+  note = {PMID: 31618586}
 }
 ```
 
